@@ -27,9 +27,16 @@ function Ensure-LogDir {
     }
 }
 
+function Convert-ToLogText([object]$Value) {
+    # wsl.exe often emits UTF-16; PowerShell may keep NUL bytes -> "D e f a u l t"
+    $text = ($Value | ForEach-Object { "$_" }) -join "`n"
+    return ($text -replace "`0", "").Trim()
+}
+
 function Write-Log {
     param([string]$Message, [string]$Level = "INFO")
-    $line = "{0} [{1}] {2}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $Level, $Message
+    $clean = Convert-ToLogText $Message
+    $line = "{0} [{1}] {2}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $Level, $clean
     foreach ($path in @($LogFile, $LogFileHost)) {
         Add-Content -LiteralPath $path -Value $line -Encoding UTF8
     }
@@ -192,12 +199,14 @@ function Test-WslOperational {
     $ErrorActionPreference = "Continue"
 
     # Several signals — Windows builds disagree on exit codes.
-    $statusOut = & wsl --status 2>&1 | Out-String
+    $statusRaw = & wsl --status 2>&1
     $statusCode = $LASTEXITCODE
-    $listOut = & wsl -l -q 2>&1 | Out-String
+    $listRaw = & wsl -l -q 2>&1
     $listCode = $LASTEXITCODE
     $ErrorActionPreference = $prev
 
+    $statusOut = Convert-ToLogText $statusRaw
+    $listOut = Convert-ToLogText $listRaw
     Write-Log ("wsl --status exit=$statusCode :: $statusOut")
     Write-Log ("wsl -l -q exit=$listCode :: $listOut")
 
@@ -218,11 +227,22 @@ function Test-WslOperational {
 }
 
 function Test-CpuVirtualization {
+    # Win32_Processor.VirtualizationFirmwareEnabled is often false under Hyper-V/WSL even when VT-x works.
+    try {
+        $hv = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction SilentlyContinue
+        if ($hv -and $hv.HypervisorPresent) {
+            Write-Info "Hyperviseur detecte (virtualisation OK pour WSL2/Docker)."
+            return $true
+        }
+    } catch { }
     try {
         $cpu = Get-CimInstance Win32_Processor | Select-Object -First 1
+        if ($cpu -and ($cpu.VirtualizationFirmwareEnabled -eq $true)) {
+            return $true
+        }
         if ($cpu -and ($cpu.VirtualizationFirmwareEnabled -eq $false)) {
-            Write-Warn "La virtualisation CPU semble desactivee dans le BIOS/UEFI."
-            Write-Warn "Activez Intel VT-x / AMD-V, sinon WSL2 et Docker ne demarreront pas."
+            Write-Warn "La virtualisation CPU peut etre desactivee dans le BIOS/UEFI (Intel VT-x / AMD-V)."
+            Write-Warn "Si Docker/WSL echouent ensuite, activez-la dans le BIOS."
             return $false
         }
     } catch { }
