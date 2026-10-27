@@ -212,18 +212,22 @@ function Invoke-SmokeTest {
         return
     }
 
-    # Strip UTF-8 BOM — Odoo shell rejects U+FEFF as a SyntaxError
+    # PowerShell native piping can inject a UTF-8 BOM; write a clean temp file and pipe via cmd.
     $smokeCode = [System.IO.File]::ReadAllText($smokePath)
     if ($smokeCode.Length -gt 0 -and [int][char]$smokeCode[0] -eq 0xFEFF) {
         $smokeCode = $smokeCode.Substring(1)
     }
+    $tmpSmoke = Join-Path $env:TEMP "atelier_meubles_smoke_test.py"
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText($tmpSmoke, $smokeCode, $utf8NoBom)
 
     # docker compose writes progress to stderr; do not treat that as a terminating error
     $prevEap = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
-    $output = $smokeCode | & docker compose run -T --rm init odoo shell -d atelier_meubles 2>&1
+    $output = cmd /c "type `"$tmpSmoke`" | docker compose run -T --rm init odoo shell -d atelier_meubles" 2>&1
     $composeExit = $LASTEXITCODE
     $ErrorActionPreference = $prevEap
+    Remove-Item -LiteralPath $tmpSmoke -ErrorAction SilentlyContinue
 
     $text = ($output | ForEach-Object { "$_" }) -join "`n"
     Write-Host $text
