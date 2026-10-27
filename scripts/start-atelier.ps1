@@ -61,7 +61,7 @@ function Install-DockerDesktop {
         exit 1
     }
 
-    & winget install -e --id Docker.DockerDesktop --accept-package-agreements --accept-source-agreements
+    & winget install -e --id Docker.DockerDesktop --accept-package-agreements --accept-source-agreements --disable-interactivity
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Echec de l'installation Docker Desktop (code $LASTEXITCODE)." -ForegroundColor Red
         Write-Host "Installez-le manuellement : https://www.docker.com/products/docker-desktop/"
