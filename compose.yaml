@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: ${ODOO_DB_PASSWORD:-odoo_dev_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  init:
+    build: .
+    image: atelier-meubles-odoo:18.0
+    pull_policy: build
+    environment: &odoo_environment
+      HOST: db
+      PORT: "5432"
+      USER: odoo
+      PASSWORD: ${ODOO_DB_PASSWORD:-odoo_dev_password}
+    command:
+      - odoo
+      - -d
+      - atelier_meubles
+      - -i
+      - atelier_meubles
+      - --stop-after-init
+      - --without-demo=all
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - ./addons:/mnt/extra-addons:ro
+
+  odoo:
+    build: .
+    image: atelier-meubles-odoo:18.0
+    pull_policy: build
+    environment: *odoo_environment
+    command: ["odoo", "-d", "atelier_meubles", "--db-filter=^atelier_meubles$", "--no-database-list"]
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8069:8069"
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - ./addons:/mnt/extra-addons:ro
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  odoo_data:

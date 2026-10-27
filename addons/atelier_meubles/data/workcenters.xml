@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="workcenter_magasin_kit" model="mrp.workcenter">
+        <field name="name">Magasin — Préparation du kit projet</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">MAG-KIT</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="workcenter_menuiserie_decoupe" model="mrp.workcenter">
+        <field name="name">Menuiserie — Découpe</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">MEN-DEC</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="workcenter_menuiserie_usinage" model="mrp.workcenter">
+        <field name="name">Menuiserie — Usinage</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">MEN-USI</field>
+        <field name="sequence">21</field>
+    </record>
+    <record id="workcenter_menuiserie_assemblage" model="mrp.workcenter">
+        <field name="name">Menuiserie — Assemblage</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">MEN-ASS</field>
+        <field name="sequence">22</field>
+    </record>
+    <record id="workcenter_menuiserie_finition" model="mrp.workcenter">
+        <field name="name">Menuiserie — Finition</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">MEN-FIN</field>
+        <field name="sequence">23</field>
+    </record>
+    <record id="workcenter_menuiserie_peinture" model="mrp.workcenter">
+        <field name="name">Menuiserie — Peinture</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">MEN-PEI</field>
+        <field name="sequence">24</field>
+    </record>
+
+    <record id="workcenter_tapisserie_garnissage" model="mrp.workcenter">
+        <field name="name">Tapisserie — Garnissage</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">TAP-GAR</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="workcenter_tapisserie_moussage" model="mrp.workcenter">
+        <field name="name">Tapisserie — Moussage</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">TAP-MOU</field>
+        <field name="sequence">31</field>
+    </record>
+    <record id="workcenter_tapisserie_coupe_tissu" model="mrp.workcenter">
+        <field name="name">Tapisserie — Coupe du tissu</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">TAP-COU</field>
+        <field name="sequence">32</field>
+    </record>
+    <record id="workcenter_tapisserie_couture" model="mrp.workcenter">
+        <field name="name">Tapisserie — Couture</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">TAP-COT</field>
+        <field name="sequence">33</field>
+    </record>
+    <record id="workcenter_tapisserie_finition" model="mrp.workcenter">
+        <field name="name">Tapisserie — Finition</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">TAP-FIN</field>
+        <field name="sequence">34</field>
+    </record>
+
+    <record id="workcenter_conditionnement_emballage" model="mrp.workcenter">
+        <field name="name">Conditionnement — Emballage</field>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="code">CON-EMB</field>
+        <field name="sequence">40</field>
+    </record>
+</odoo>

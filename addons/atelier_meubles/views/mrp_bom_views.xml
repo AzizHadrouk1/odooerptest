@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_bom_form_furniture_route" model="ir.ui.view">
+        <field name="name">mrp.bom.form.furniture.route</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet" position="before">
+                <header>
+                    <button name="action_add_furniture_route"
+                            type="object"
+                            string="Ajouter le parcours complet des ateliers"
+                            class="btn-primary"
+                            groups="mrp.group_mrp_routings"/>
+                </header>
+            </xpath>
+        </field>
+    </record>
+</odoo>

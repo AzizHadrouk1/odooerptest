@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_order_form_furniture_study" model="ir.ui.view">
+        <field name="name">sale.order.form.furniture.study</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page name="furniture_study" string="Étude du meuble">
+                    <group>
+                        <field name="furniture_study_state"/>
+                        <field name="furniture_material_estimate"/>
+                        <field name="furniture_total_estimate"/>
+                        <field name="furniture_expected_margin"/>
+                    </group>
+                    <group>
+                        <field name="furniture_requirements" placeholder="Dimensions, matière, finition, quantité..."/>
+                        <field name="furniture_study_notes" placeholder="Plan, composants, opérations et délais..."/>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form/field[@name='technical_price_unit']" position="after">
+                <field name="currency_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="after">
+                <separator string="Étude du coût de ce meuble"/>
+                <field name="furniture_study_notes"/>
+                <field name="furniture_material_cost"/>
+                <field name="furniture_labor_cost"/>
+                <field name="furniture_other_cost"/>
+                <field name="furniture_unit_cost"/>
+                <field name="furniture_total_cost"/>
+                <field name="furniture_expected_margin"/>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/field[@name='price_unit']" position="after">
+                <field name="furniture_unit_cost" optional="hide"/>
+                <field name="furniture_total_cost" optional="hide"/>
+                <field name="furniture_expected_margin" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

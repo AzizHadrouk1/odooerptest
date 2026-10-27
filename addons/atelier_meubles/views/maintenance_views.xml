@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="equipment_form_furniture_workcenter" model="ir.ui.view">
+        <field name="name">maintenance.equipment.form.furniture.workcenter</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location']" position="after">
+                <field name="furniture_workcenter_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="request_form_furniture_manufacturing" model="ir.ui.view">
+        <field name="name">maintenance.request.form.furniture.manufacturing</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='equipment_id']" position="after">
+                <field name="furniture_production_id"/>
+                <field name="furniture_workorder_id"
+                       domain="[('production_id', '=', furniture_production_id)]"
+                       invisible="not furniture_production_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
