@@ -15,7 +15,6 @@ $PollSeconds = 5
 $OdooUrl = "http://localhost:8069"
 $TaskName = "AtelierMeublesAutoStart"
 $ContinueFlag = Join-Path $Root ".atelier-continue-after-reboot"
-$BatPath = Join-Path $Root "start-atelier.bat"
 
 function Write-Step([string]$Message) {
     Write-Host ""
@@ -144,89 +143,46 @@ function Invoke-RebootToContinue {
 function Ensure-Wsl {
     Write-Step "Verification WSL / VirtualMachinePlatform"
 
-    $featuresOk = $false
-    if (Test-IsAdmin) {
-        $featuresOk = Test-WslFeatureEnabled
-    } else {
-        # Without admin, infer from wsl.exe behavior
-        $featuresOk = Test-WslOperational
+    if (Test-WslOperational) {
+        Write-Host "WSL deja operationnel."
+        return
     }
 
-    $needsEnable = -not $featuresOk
-    $needsReboot = $false
-
-    if ($needsEnable) {
-        if (-not (Test-IsAdmin)) {
-            Request-Elevation
-        }
-
-        Write-Step "Activation des composants Windows WSL + VirtualMachinePlatform"
-        $features = @(
-            "Microsoft-Windows-Subsystem-Linux",
-            "VirtualMachinePlatform"
-        )
-        foreach ($name in $features) {
-            $state = Get-WindowsFeatureState $name
-            Write-Host "  $name : $state"
-            if ($state -ne "Enabled") {
-                $result = Enable-WindowsOptionalFeature -Online -FeatureName $name -All -NoRestart
-                if ($result.RestartNeeded) {
-                    $needsReboot = $true
-                }
-                # DISM-style pending reboot
-                if ($LASTEXITCODE -eq 3010) {
-                    $needsReboot = $true
-                }
-            }
-        }
-
-        # Prefer official installer path when available (enables WSL + updates kernel)
-        if (Test-CommandExists "wsl") {
-            Write-Step "Installation / mise a jour WSL (sans distribution)"
-            $prev = $ErrorActionPreference
-            $ErrorActionPreference = "Continue"
-            & wsl --install --no-distribution --web-download 2>&1 | Out-Host
-            $wslInstallCode = $LASTEXITCODE
-            $ErrorActionPreference = $prev
-            # Common: success, already installed, or reboot required
-            if ($wslInstallCode -eq 3010) {
-                $needsReboot = $true
-            }
-        } else {
-            $needsReboot = $true
-        }
-
-        if ($needsReboot -or -not (Test-WslFeatureEnabled)) {
-            Invoke-RebootToContinue
-        }
-    }
-
-    # Features on: ensure WSL2 default + kernel update
-    if (-not (Test-IsAdmin) -and -not (Test-WslOperational)) {
+    if (-not (Test-IsAdmin)) {
         Request-Elevation
     }
 
+    $needsReboot = $false
+
+    Write-Step "Activation des composants Windows WSL + VirtualMachinePlatform"
+    foreach ($name in @("Microsoft-Windows-Subsystem-Linux", "VirtualMachinePlatform")) {
+        $state = Get-WindowsFeatureState $name
+        Write-Host "  $name : $state"
+        if ($state -ne "Enabled") {
+            $result = Enable-WindowsOptionalFeature -Online -FeatureName $name -All -NoRestart
+            if ($result.RestartNeeded) { $needsReboot = $true }
+        }
+    }
+
     if (Test-CommandExists "wsl") {
-        Write-Step "Configuration WSL 2"
+        Write-Step "Installation / mise a jour WSL (sans distribution)"
         $prev = $ErrorActionPreference
         $ErrorActionPreference = "Continue"
+        & wsl --install --no-distribution --web-download 2>&1 | Out-Host
+        if ($LASTEXITCODE -eq 3010) { $needsReboot = $true }
         & wsl --set-default-version 2 2>&1 | Out-Host
         & wsl --update 2>&1 | Out-Host
-        $status = & wsl --status 2>&1 | Out-String
         $ErrorActionPreference = $prev
-        Write-Host $status
-
-        if (-not (Test-WslOperational)) {
-            Write-Host "WSL n'est pas encore operationnel — redemarrage requis." -ForegroundColor Yellow
-            if (-not (Test-IsAdmin)) { Request-Elevation }
-            Invoke-RebootToContinue
-        }
-        Write-Host "WSL pret."
     } else {
-        Write-Host "wsl.exe introuvable apres activation — redemarrage requis." -ForegroundColor Yellow
-        if (-not (Test-IsAdmin)) { Request-Elevation }
+        $needsReboot = $true
+    }
+
+    if ($needsReboot -or -not (Test-WslOperational)) {
+        Write-Host "WSL pas encore pret — redemarrage automatique requis." -ForegroundColor Yellow
         Invoke-RebootToContinue
     }
+
+    Write-Host "WSL pret."
 }
 
 function Set-DockerDesktopDefaults {
