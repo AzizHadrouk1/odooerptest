@@ -6,6 +6,10 @@ Cet environnement démarre Odoo et PostgreSQL, crée la base `atelier_meubles` e
 
 Prérequis : Docker Desktop démarré, avec les conteneurs Linux activés.
 
+### Démarrage en un clic
+
+Double-cliquez sur `start-atelier.bat`. Le script vérifie Docker (et tente de l’installer via `winget` s’il manque), crée `.env` si besoin, lance `docker compose up --build -d`, attend que le module soit installé, ouvre **http://localhost:8069** et exécute le smoke test.
+
 Dans PowerShell, depuis ce dossier :
 
 ```powershell
