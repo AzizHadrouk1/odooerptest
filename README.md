@@ -8,7 +8,13 @@ Prérequis : Docker Desktop démarré, avec les conteneurs Linux activés.
 
 ### Démarrage en un clic
 
-Double-cliquez sur `start-atelier.bat` — **aucune commande à saisir**. Le script vérifie Docker (et tente de l’installer via `winget` s’il manque), crée `.env` si besoin, lance la stack, attend que le module soit installé, ouvre **http://localhost:8069** et exécute le smoke test. La fenêtre se ferme toute seule à la fin.
+Double-cliquez sur `start-atelier.bat` — **aucune commande à saisir**. Le script :
+
+1. active **WSL** et **VirtualMachinePlatform** s’ils ne le sont pas (redémarrage auto + reprise après connexion si Windows l’exige) ;
+2. installe **Docker Desktop** via `winget` s’il manque, le configure en WSL2 et le démarre ;
+3. crée `.env` si besoin, lance la stack, attend le module, ouvre **http://localhost:8069** et exécute le smoke test.
+
+Acceptez une seule fois la demande **UAC** (droits administrateur) si WSL/Docker doivent être installés. La fenêtre se ferme toute seule à la fin.
 
 Dans PowerShell, depuis ce dossier :
 

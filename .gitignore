@@ -1,3 +1,4 @@
 .env
+.atelier-continue-after-reboot
 __pycache__/
 *.pyc

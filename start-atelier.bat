@@ -2,7 +2,8 @@
 setlocal
 cd /d "%~dp0"
 
-echo Atelier Meubles - demarrage automatique (aucune commande a saisir)
+echo Atelier Meubles - demarrage 100%% automatique
+echo WSL + Docker + Odoo (aucune commande a saisir)
 echo.
 
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\start-atelier.ps1"
