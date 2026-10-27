@@ -212,11 +212,23 @@ function Invoke-SmokeTest {
         return
     }
 
-    $output = Get-Content -LiteralPath $smokePath -Raw | & docker compose run -T --rm init odoo shell -d atelier_meubles 2>&1
-    $text = ($output | Out-String)
+    # Strip UTF-8 BOM — Odoo shell rejects U+FEFF as a SyntaxError
+    $smokeCode = [System.IO.File]::ReadAllText($smokePath)
+    if ($smokeCode.Length -gt 0 -and [int][char]$smokeCode[0] -eq 0xFEFF) {
+        $smokeCode = $smokeCode.Substring(1)
+    }
+
+    # docker compose writes progress to stderr; do not treat that as a terminating error
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    $output = $smokeCode | & docker compose run -T --rm init odoo shell -d atelier_meubles 2>&1
+    $composeExit = $LASTEXITCODE
+    $ErrorActionPreference = $prevEap
+
+    $text = ($output | ForEach-Object { "$_" }) -join "`n"
     Write-Host $text
 
-    if ($text -match "OK: 2 meubles") {
+    if ($composeExit -eq 0 -and $text -match "OK: 2 meubles") {
         Write-Host "Smoke test OK." -ForegroundColor Green
     } else {
         Write-Host "Smoke test en echec ou resultat inattendu." -ForegroundColor Red
