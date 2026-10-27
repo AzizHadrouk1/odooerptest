@@ -299,12 +299,12 @@ function Ensure-Wsl {
         Fail "Windows 10 version 2004 (build 19041) ou plus recent est requis pour WSL2 / Docker Desktop."
     }
 
-    $null = Test-CpuVirtualization
-
     if (Test-WslOperational) {
         Write-Info "WSL deja operationnel."
         return
     }
+
+    $null = Test-CpuVirtualization
 
     if (-not (Test-IsAdmin)) {
         Request-Elevation
