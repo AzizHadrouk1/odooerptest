@@ -17,6 +17,7 @@ $TaskName = "AtelierMeublesAutoStart"
 $ContinueFlag = Join-Path $Root ".atelier-continue-after-reboot"
 $LogDir = Join-Path $Root "logs"
 $LogFile = Join-Path $LogDir "start-atelier.log"
+$LogFileHost = Join-Path $LogDir ("start-atelier-{0}.log" -f $env:COMPUTERNAME)
 # Exit code meaning: elevated child was started; parent should not report success/failure of the stack.
 $ExitElevatedRelaunch = 99
 
@@ -29,7 +30,9 @@ function Ensure-LogDir {
 function Write-Log {
     param([string]$Message, [string]$Level = "INFO")
     $line = "{0} [{1}] {2}" -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss"), $Level, $Message
-    Add-Content -LiteralPath $LogFile -Value $line -Encoding UTF8
+    foreach ($path in @($LogFile, $LogFileHost)) {
+        Add-Content -LiteralPath $path -Value $line -Encoding UTF8
+    }
 }
 
 function Write-Step([string]$Message) {
@@ -56,7 +59,8 @@ function Write-Err([string]$Message) {
 function Fail([string]$Message, [int]$Code = 1) {
     Write-Err $Message
     Write-Err "Journal: $LogFile"
-    Write-Err "Renvoyez ce fichier logs\start-atelier.log pour diagnostic."
+    Write-Err "Aussi: $LogFileHost"
+    Write-Err "Pour GitHub: git add logs && git commit -m `"log failure`" && git push"
     try { Start-Process notepad.exe $LogFile } catch { }
     exit $Code
 }

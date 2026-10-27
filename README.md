@@ -14,7 +14,15 @@ Double-cliquez sur `start-atelier.bat` — **aucune commande à saisir**. Le scr
 2. installe **Docker Desktop** (via `winget`, sinon téléchargement direct), le configure en WSL2 et le démarre ;
 3. crée `.env` si besoin, lance la stack, attend le module, ouvre **http://localhost:8069** et exécute le smoke test.
 
-Acceptez une seule fois la demande **UAC** (droits administrateur) si WSL/Docker doivent être installés. Un journal est écrit dans `logs/start-atelier.log` (utile si un autre PC échoue). La fenêtre se ferme toute seule à la fin.
+Acceptez une seule fois la demande **UAC** (droits administrateur) si WSL/Docker doivent être installés. Un journal est écrit dans `logs/start-atelier.log` et `logs/start-atelier-<NOM-PC>.log` (ces fichiers peuvent être poussés sur GitHub pour diagnostic). La fenêtre se ferme toute seule à la fin.
+
+Sur un autre PC : `git pull`, puis double-cliquez `start-atelier.bat`. En cas d’échec, poussez le journal :
+
+```powershell
+git add logs
+git commit -m "log failure from this PC"
+git push
+```
 
 Prérequis machine : Windows 10 2004+ / Windows 11, virtualisation CPU activée dans le BIOS (Intel VT-x / AMD-V), Internet pour le premier téléchargement.
 
